@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Money Smart Kids - Book 2: Let's Spend Wisely!</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #1a1a2e;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: linear-gradient(135deg, #1E90FF, #00CED1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .top-bar h1 {
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .page-indicator {
+            position: absolute;
+            right: 20px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            background: rgba(0,0,0,0.3);
+            padding: 4px 16px;
+            border-radius: 20px;
+        }
+
+        /* Slide Container */
+        .slide-wrapper {
+            position: relative;
+            width: 100%;
+            height: calc(100vh - 100px);
+            margin-top: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .slide-container {
+            position: relative;
+            max-width: 90vw;
+            max-height: calc(100vh - 110px);
+            aspect-ratio: 16/9;
+        }
+        .slide-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+
+        /* Navigation Buttons */
+        .nav-btn {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            font-size: 28px;
+            cursor: pointer;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.2s;
+        }
+        .nav-btn:hover { background: #00CED1; transform: translateY(-50%) scale(1.1); }
+        .nav-btn:active { transform: translateY(-50%) scale(0.95); }
+        .nav-btn.prev { left: 15px; }
+        .nav-btn.next { right: 15px; }
+        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .nav-btn:disabled:hover { background: rgba(255,255,255,0.9); transform: translateY(-50%); }
+
+        /* Bottom Bar */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 0 80px;
+            z-index: 100;
+            overflow-x: auto;
+        }
+        .thumb-btn {
+            width: 40px;
+            height: 28px;
+            border: 2px solid transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            background-size: cover;
+            background-position: center;
+        }
+        .thumb-btn:hover { opacity: 1; border-color: #00CED1; }
+        .thumb-btn.active { opacity: 1; border-color: #1E90FF; border-width: 3px; }
+
+        /* ===== Small Trigger Button (corner icon) ===== */
+        .tool-trigger-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid white;
+            background: #1E90FF;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            z-index: 20;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+            transition: all 0.2s;
+            animation: pulse 2s infinite;
+        }
+        .tool-trigger-btn:hover { transform: scale(1.15); background: #4169E1; }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 4px 16px rgba(30,144,255,0.5); }
+            50% { box-shadow: 0 4px 24px rgba(30,144,255,0.9), 0 0 0 8px rgba(30,144,255,0.2); }
+        }
+
+        /* ===== Modal Overlay ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+
+        .modal-close-zone {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            cursor: pointer;
+        }
+
+        /* ===== Dice Modal ===== */
+        .dice-modal {
+            position: relative;
+            background: linear-gradient(135deg, #e3f2fd, #ffffff);
+            border-radius: 24px;
+            padding: 30px 40px;
+            text-align: center;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+            z-index: 201;
+            border: 4px solid #1E90FF;
+        }
+        .dice-modal h2 {
+            font-size: 24px;
+            color: #1E90FF;
+            margin-bottom: 16px;
+        }
+        .dice-box {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border: 5px solid #1E90FF;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+        }
+        .dice-box:hover { transform: scale(1.05); }
+        .dice-box:active { transform: scale(0.95); }
+        .dice-box.rolling {
+            animation: diceShake 0.12s infinite alternate;
+        }
+        @keyframes diceShake {
+            0% { transform: rotate(-12deg) scale(1.08); }
+            100% { transform: rotate(12deg) scale(1.08); }
+        }
+        .dice-face {
+            display: grid;
+            width: 90px;
+            height: 90px;
+            padding: 12px;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 3px;
+            place-items: center;
+        }
+        .dice-dot {
+            width: 18px;
+            height: 18px;
+            background: #333;
+            border-radius: 50%;
+        }
+        .dice-result-text {
+            font-size: 36px;
+            font-weight: bold;
+            color: #1E90FF;
+            min-height: 50px;
+        }
+        .dice-instruction {
+            font-size: 16px;
+            color: #666;
+            margin-top: 8px;
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 3px solid white;
+            background: #1E90FF;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .modal-close-btn:hover { background: #4169E1; }
+
+        /* ===== Spinner Modal ===== */
+        .spinner-modal {
+            position: relative;
+            background: linear-gradient(135deg, #e8f5e9, #ffffff);
+            border-radius: 24px;
+            padding: 30px 40px;
+            text-align: center;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+            z-index: 201;
+            border: 4px solid #FF6347;
+        }
+        .spinner-modal h2 {
+            font-size: 24px;
+            color: #FF6347;
+            margin-bottom: 16px;
+        }
+        .spinner-area {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin: 0 auto 16px;
+        }
+        .spinner-wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 6px solid white;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+            background: conic-gradient(
+                #FF6B6B 0deg 60deg,
+                #4ECDC4 60deg 120deg,
+                #FFE66D 120deg 180deg,
+                #6C5CE7 180deg 240deg,
+                #FF9F1C 240deg 300deg,
+                #A8E6CF 300deg 360deg
+            );
+            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            position: relative;
+            cursor: pointer;
+        }
+        .spinner-pointer {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 14px solid transparent;
+            border-right: 14px solid transparent;
+            border-top: 28px solid #FF6347;
+            z-index: 5;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+        }
+        .spinner-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 64px;
+            height: 64px;
+            background: white;
+            border-radius: 50%;
+            border: 4px solid #FF6347;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 15px;
+            color: #FF6347;
+            z-index: 3;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .spinner-center:hover { background: #fff5f5; }
+        .spinner-section-label {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 28px;
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            pointer-events: none;
+        }
+        .spinner-result-text {
+            font-size: 28px;
+            font-weight: bold;
+            color: #FF6347;
+            min-height: 40px;
+        }
+        .spinner-instruction {
+            font-size: 16px;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        /* Keyboard hint */
+        .keyboard-hint {
+            position: fixed;
+            bottom: 55px;
+            right: 20px;
+            color: rgba(255,255,255,0.5);
+            font-size: 12px;
+            z-index: 101;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <h1>Money Smart Kids - Book 2: Let's Spend Wisely! 小小理財家 - 第二冊：聰明消費！</h1>
+        <span class="page-indicator" id="pageIndicator">1 / 50</span>
+    </div>
+
+    <!-- Navigation -->
+    <button class="nav-btn prev" id="prevBtn" onclick="goToPage(currentPage - 1)">&#9664;</button>
+    <button class="nav-btn next" id="nextBtn" onclick="goToPage(currentPage + 1)">&#9654;</button>
+
+    <!-- Slide Display -->
+    <div class="slide-wrapper">
+        <div class="slide-container" id="slideContainer">
+            <img id="slideImage" src="" alt="Slide">
+            
+            <!-- Small trigger buttons in corner -->
+            <div class="tool-trigger-btn" id="diceTrigger" onclick="openDiceModal()">&#127922;</div>
+            <div class="tool-trigger-btn" id="spinnerTrigger" onclick="openSpinnerModal()">&#127919;</div>
+        </div>
+    </div>
+
+    <!-- Dice Modal -->
+    <div class="modal-overlay" id="diceModal">
+        <div class="modal-close-zone" onclick="closeDiceModal()"></div>
+        <div class="dice-modal">
+            <div class="modal-close-btn" onclick="closeDiceModal()">✕</div>
+            <h2>🎲 Roll the Dice! 擲骰子！</h2>
+            <div class="dice-box" id="diceBox" onclick="rollDice()">
+                <div class="dice-face" id="diceFace"></div>
+            </div>
+            <div class="dice-result-text" id="diceResultText"></div>
+            <div class="dice-instruction">Click the dice to roll! 點擊骰子來擲！</div>
+        </div>
+    </div>
+
+    <!-- Spinner Modal -->
+    <div class="modal-overlay" id="spinnerModal">
+        <div class="modal-close-zone" onclick="closeSpinnerModal()"></div>
+        <div class="spinner-modal">
+            <div class="modal-close-btn" onclick="closeSpinnerModal()" style="border-color:white; background:#FF6347;">✕</div>
+            <h2>🎯 Spin for Budget! 轉出預算！</h2>
+            <div class="spinner-area">
+                <div class="spinner-pointer"></div>
+                <div class="spinner-wheel" id="spinnerWheel" onclick="spinWheel()">
+                    <div class="spinner-section-label" style="transform: rotate(30deg);"><span style="transform: rotate(-30deg);">$5</span></div>
+                    <div class="spinner-section-label" style="transform: rotate(90deg);"><span style="transform: rotate(-90deg);">$8</span></div>
+                    <div class="spinner-section-label" style="transform: rotate(150deg);"><span style="transform: rotate(-150deg);">$10</span></div>
+                    <div class="spinner-section-label" style="transform: rotate(210deg);"><span style="transform: rotate(-210deg);">$12</span></div>
+                    <div class="spinner-section-label" style="transform: rotate(270deg);"><span style="transform: rotate(-270deg);">$15</span></div>
+                    <div class="spinner-section-label" style="transform: rotate(330deg);"><span style="transform: rotate(-330deg);">$20</span></div>
+                </div>
+                <div class="spinner-center" onclick="spinWheel()">SPIN!</div>
+            </div>
+            <div class="spinner-result-text" id="spinnerResultText"></div>
+            <div class="spinner-instruction">Click SPIN or the wheel! 點擊 SPIN 或轉盤！</div>
+        </div>
+    </div>
+
+    <!-- Bottom Thumbnail Bar -->
+    <div class="bottom-bar" id="bottomBar"></div>
+
+    <!-- Keyboard Hint -->
+    <div class="keyboard-hint">Use ← → arrow keys to navigate 使用方向鍵翻頁</div>
+
+    <script>
+        // All 50 slide images
+        const slides = [
+            "images/p01_cover_generated.webp",
+            "images/p02_contents_generated.webp",
+            "images/p03_remember_1_generated.webp",
+            "images/p04_remember_2_generated.webp",
+            "images/p05_unit1_title_generated.webp",
+            "images/p06_unit1_talk_1_generated.webp",
+            "images/p07_unit1_talk_2_generated.webp",
+            "images/p08_unit1_learn_1_generated.webp",
+            "images/p09_unit1_learn_2_generated.webp",
+            "images/p10_unit1_learn_more_1_generated.webp",
+            "images/p11_unit1_learn_more_2_generated.webp",
+            "images/p12_unit1_read_generated.webp",
+            "images/p13_unit1_sing_generated.webp",
+            "images/p14_unit1_play_generated.webp",
+            "images/p15_unit2_title_generated.webp",
+            "images/p16_unit2_talk_1_generated.webp",
+            "images/p17_unit2_talk_2_generated.webp",
+            "images/p18_unit2_learn_1_generated.webp",
+            "images/p19_unit2_learn_2_generated.webp",
+            "images/p20_unit2_learn_more_1_generated.webp",
+            "images/p21_unit2_learn_more_2_generated.webp",
+            "images/p22_unit2_read_generated.webp",
+            "images/p23_unit2_sing_generated.webp",
+            "images/p24_unit2_play_generated.webp",
+            "images/p25_review1_a_generated.webp",
+            "images/p26_review1_b_generated.webp",
+            "images/p27_unit3_title_generated.webp",
+            "images/p28_unit3_talk_1_generated.webp",
+            "images/p29_unit3_talk_2_generated.webp",
+            "images/p30_unit3_learn_1_generated.webp",
+            "images/p31_unit3_learn_2_generated.webp",
+            "images/p32_unit3_learn_more_1_generated.webp",
+            "images/p33_unit3_learn_more_2_generated.webp",
+            "images/p34_unit3_read_generated.webp",
+            "images/p35_unit3_sing_generated.webp",
+            "images/p36_unit3_play_generated.webp",
+            "images/p37_unit4_title_generated.webp",
+            "images/p38_unit4_talk_1_generated.webp",
+            "images/p39_unit4_talk_2_generated.webp",
+            "images/p40_unit4_learn_1_generated.webp",
+            "images/p41_unit4_learn_2_generated.webp",
+            "images/p42_unit4_learn_more_1_generated.webp",
+            "images/p43_unit4_learn_more_2_generated.webp",
+            "images/p44_unit4_read_generated.webp",
+            "images/p45_unit4_sing_generated.webp",
+            "images/p46_unit4_play_generated.webp",
+            "images/p47_review2_a_generated.webp",
+            "images/p48_review2_b_generated.webp",
+            "images/p49_project_generated.webp",
+            "images/p50_wordlist_generated.webp"
+        ];
+
+        let currentPage = 0;
+        const totalPages = slides.length;
+
+        // Initialize thumbnails
+        const bottomBar = document.getElementById('bottomBar');
+        slides.forEach((src, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'thumb-btn';
+            btn.style.backgroundImage = `url(${src})`;
+            btn.onclick = () => goToPage(i);
+            btn.id = `thumb-${i}`;
+            bottomBar.appendChild(btn);
+        });
+
+        function goToPage(page) {
+            if (page < 0 || page >= totalPages) return;
+            currentPage = page;
+            
+            document.getElementById('slideImage').src = slides[page];
+            document.getElementById('pageIndicator').textContent = `${page + 1} / ${totalPages}`;
+            
+            // Update nav buttons
+            document.getElementById('prevBtn').disabled = (page === 0);
+            document.getElementById('nextBtn').disabled = (page === totalPages - 1);
+            
+            // Update thumbnails
+            document.querySelectorAll('.thumb-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === page);
+            });
+            
+            // Scroll thumbnail into view
+            document.getElementById(`thumb-${page}`).scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            
+            // Show/hide small trigger buttons
+            // P24 = index 23 (dice for store board game)
+            // P46 = index 45 (spinner for budget game)
+            const diceTrigger = document.getElementById('diceTrigger');
+            const spinnerTrigger = document.getElementById('spinnerTrigger');
+            diceTrigger.style.display = (page === 23) ? 'flex' : 'none';
+            spinnerTrigger.style.display = (page === 45) ? 'flex' : 'none';
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (document.getElementById('diceModal').classList.contains('active') ||
+                document.getElementById('spinnerModal').classList.contains('active')) {
+                if (e.key === 'Escape') { closeDiceModal(); closeSpinnerModal(); }
+                return;
+            }
+            if (e.key === 'ArrowLeft') goToPage(currentPage - 1);
+            if (e.key === 'ArrowRight') goToPage(currentPage + 1);
+        });
+
+        // ==================== DICE MODAL ====================
+        let isRollingDice = false;
+
+        function openDiceModal() {
+            document.getElementById('diceModal').classList.add('active');
+            document.getElementById('diceResultText').textContent = '';
+            drawDiceFace(1);
+        }
+        function closeDiceModal() {
+            document.getElementById('diceModal').classList.remove('active');
+        }
+
+        function drawDiceFace(num) {
+            const face = document.getElementById('diceFace');
+            face.innerHTML = '';
+            const positions = {
+                1: [[1,1]],
+                2: [[0,2],[2,0]],
+                3: [[0,2],[1,1],[2,0]],
+                4: [[0,0],[0,2],[2,0],[2,2]],
+                5: [[0,0],[0,2],[1,1],[2,0],[2,2]],
+                6: [[0,0],[0,2],[1,0],[1,2],[2,0],[2,2]]
+            };
+            for (let r = 0; r < 3; r++) {
+                for (let c = 0; c < 3; c++) {
+                    const cell = document.createElement('div');
+                    const hasDot = positions[num].some(p => p[0] === r && p[1] === c);
+                    if (hasDot) {
+                        cell.className = 'dice-dot';
+                    } else {
+                        cell.style.width = '18px';
+                        cell.style.height = '18px';
+                    }
+                    face.appendChild(cell);
+                }
+            }
+        }
+
+        function rollDice() {
+            if (isRollingDice) return;
+            isRollingDice = true;
+            const box = document.getElementById('diceBox');
+            const resultText = document.getElementById('diceResultText');
+            box.classList.add('rolling');
+            resultText.textContent = '';
+            let count = 0;
+            const interval = setInterval(() => {
+                drawDiceFace(Math.floor(Math.random() * 6) + 1);
+                count++;
+                if (count > 15) {
+                    clearInterval(interval);
+                    const result = Math.floor(Math.random() * 6) + 1;
+                    drawDiceFace(result);
+                    box.classList.remove('rolling');
+                    resultText.textContent = `🎲 You rolled: ${result}! 你擲到了 ${result}！`;
+                    isRollingDice = false;
+                }
+            }, 100);
+        }
+
+        // ==================== SPINNER MODAL ====================
+        let isSpinning = false;
+        let spinnerRotation = 0;
+
+        const spinnerSections = [
+            { name: "$5 預算", price: "$5" },
+            { name: "$8 預算", price: "$8" },
+            { name: "$10 預算", price: "$10" },
+            { name: "$12 預算", price: "$12" },
+            { name: "$15 預算", price: "$15" },
+            { name: "$20 預算", price: "$20" }
+        ];
+
+        function openSpinnerModal() {
+            document.getElementById('spinnerModal').classList.add('active');
+            document.getElementById('spinnerResultText').textContent = '';
+        }
+        function closeSpinnerModal() {
+            document.getElementById('spinnerModal').classList.remove('active');
+        }
+
+        function spinWheel() {
+            if (isSpinning) return;
+            isSpinning = true;
+            const wheel = document.getElementById('spinnerWheel');
+            const resultText = document.getElementById('spinnerResultText');
+            resultText.textContent = '';
+            const extraSpins = (Math.floor(Math.random() * 5) + 5) * 360;
+            const randomAngle = Math.floor(Math.random() * 360);
+            spinnerRotation += extraSpins + randomAngle;
+            wheel.style.transform = `rotate(${spinnerRotation}deg)`;
+            // The pointer is fixed at top (0°/360°). The wheel rotates clockwise.
+            const normalizedAngle = spinnerRotation % 360;
+            const pointerAngle = (360 - normalizedAngle) % 360;
+            const sectionIndex = Math.floor(pointerAngle / 60);
+            const winner = spinnerSections[sectionIndex];
+            setTimeout(() => {
+                resultText.textContent = `🎯 Your budget: ${winner.price}! 你的預算：${winner.price}！`;
+                isSpinning = false;
+            }, 4000);
+        }
+
+        // Start on page 1
+        goToPage(0);
+    </script>
+</body>
+</html>
