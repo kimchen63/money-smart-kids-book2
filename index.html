@@ -671,7 +671,7 @@
             // The pointer is fixed at top (0°/360°). The wheel rotates clockwise.
             const normalizedAngle = spinnerRotation % 360;
             const pointerAngle = (360 - normalizedAngle) % 360;
-            const sectionIndex = Math.floor(pointerAngle / 60);
+            const sectionIndex = Math.floor((pointerAngle + 30) % 360 / 60);
             const sections = getSpinnerSections();
             const winner = sections[sectionIndex];
             setTimeout(() => {
