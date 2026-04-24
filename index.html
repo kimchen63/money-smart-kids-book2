@@ -527,11 +527,12 @@
             document.getElementById(`thumb-${page}`).scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
             
             // Show/hide small trigger buttons
+            // P14 = index 13 (dice for store board game)
             // P24 = index 23 (dice for store board game)
             // P46 = index 45 (spinner for budget game)
             const diceTrigger = document.getElementById('diceTrigger');
             const spinnerTrigger = document.getElementById('spinnerTrigger');
-            diceTrigger.style.display = (page === 23) ? 'flex' : 'none';
+            diceTrigger.style.display = (page === 13 || page === 23) ? 'flex' : 'none';
             spinnerTrigger.style.display = (page === 45) ? 'flex' : 'none';
         }
 
