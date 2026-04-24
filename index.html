@@ -532,8 +532,8 @@
             // P46 = index 45 (spinner for budget game)
             const diceTrigger = document.getElementById('diceTrigger');
             const spinnerTrigger = document.getElementById('spinnerTrigger');
-            diceTrigger.style.display = (page === 13 || page === 23) ? 'flex' : 'none';
-            spinnerTrigger.style.display = (page === 45) ? 'flex' : 'none';
+            diceTrigger.style.display = (page === 13) ? 'flex' : 'none';
+            spinnerTrigger.style.display = (page === 23 || page === 45) ? 'flex' : 'none';
         }
 
         // Keyboard navigation
@@ -611,7 +611,15 @@
         let isSpinning = false;
         let spinnerRotation = 0;
 
-        const spinnerSections = [
+        const spinnerSectionsP24 = [
+            { name: "teddy bear 泰迪熊", price: "$8" },
+            { name: "ball 球", price: "$5" },
+            { name: "eraser 橡皮擦", price: "$1" },
+            { name: "book 書", price: "$2" },
+            { name: "toy car 玩具車", price: "$10" },
+            { name: "pencil 鉛筆", price: "$4" }
+        ];
+        const spinnerSectionsP46 = [
             { name: "$5 預算", price: "$5" },
             { name: "$8 預算", price: "$8" },
             { name: "$10 預算", price: "$10" },
@@ -619,8 +627,30 @@
             { name: "$15 預算", price: "$15" },
             { name: "$20 預算", price: "$20" }
         ];
+        function getSpinnerSections() {
+            return (currentPage === 23) ? spinnerSectionsP24 : spinnerSectionsP46;
+        }
 
         function openSpinnerModal() {
+            // Update spinner labels based on current page
+            const sections = getSpinnerSections();
+            const labels = document.querySelectorAll('.spinner-section-label span');
+            labels.forEach((label, i) => {
+                if (sections[i]) {
+                    if (currentPage === 23) {
+                        label.textContent = sections[i].name.split(' ')[0] + ' ' + sections[i].price;
+                    } else {
+                        label.textContent = sections[i].price;
+                    }
+                }
+            });
+            // Update modal title
+            const title = document.querySelector('.spinner-modal h2');
+            if (currentPage === 23) {
+                title.textContent = '🎰 Shopping Spinner 購物轉盤';
+            } else {
+                title.textContent = '🎰 Budget Spinner 預算轉盤';
+            }
             document.getElementById('spinnerModal').classList.add('active');
             document.getElementById('spinnerResultText').textContent = '';
         }
@@ -642,9 +672,14 @@
             const normalizedAngle = spinnerRotation % 360;
             const pointerAngle = (360 - normalizedAngle) % 360;
             const sectionIndex = Math.floor(pointerAngle / 60);
-            const winner = spinnerSections[sectionIndex];
+            const sections = getSpinnerSections();
+            const winner = sections[sectionIndex];
             setTimeout(() => {
-                resultText.textContent = `🎯 Your budget: ${winner.price}! 你的預算：${winner.price}！`;
+                if (currentPage === 23) {
+                    resultText.textContent = `🎯 ${winner.name}! It's ${winner.price}! 價格是${winner.price}！`;
+                } else {
+                    resultText.textContent = `🎯 Your budget: ${winner.price}! 你的預算：${winner.price}！`;
+                }
                 isSpinning = false;
             }, 4000);
         }
