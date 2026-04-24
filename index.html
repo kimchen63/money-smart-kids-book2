@@ -615,9 +615,9 @@
             { name: "teddy bear 泰迪熊", price: "$8" },
             { name: "pencil 鉛筆", price: "$1" },
             { name: "eraser 橡皮擦", price: "$2" },
-            { name: "ball 球", price: "$5" },
+            { name: "book 書", price: "$5" },
             { name: "toy car 玩具車", price: "$10" },
-            { name: "book 書", price: "$4" }
+            { name: "ball 球", price: "$4" }
         ];
         const spinnerSectionsP46 = [
             { name: "$5 預算", price: "$5" },
@@ -638,7 +638,8 @@
             labels.forEach((label, i) => {
                 if (sections[i]) {
                     if (currentPage === 23) {
-                        label.textContent = sections[i].name.split(' ')[0] + ' ' + sections[i].price;
+                        const engName = sections[i].name.split(' ').filter(w => !/[\u4e00-\u9fff]/.test(w)).join(' ');
+                        label.textContent = engName + ' ' + sections[i].price;
                     } else {
                         label.textContent = sections[i].price;
                     }
